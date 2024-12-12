@@ -212,8 +212,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="section" class="level2" data-number="2.1">
 <h2 data-number="2.1" class="anchored" data-anchor-id="section"><span class="header-section-number">2.1</span> </h2>
 <p># 2.1</p>
-<p>The data set selected is from the Happy Planet Index (HPI) provided by HotorCool, ranking countries based on their HPI score, using 2021 data with the latest rankings available for 2024. It includes columns HPI rank, Country, ISO, Continent, Population, Life Expectancy, Ladder of Life (Wellbeing), Carbon Footprint, CO2 threshold, GDP per capita, and HPI. Life Expectancy data is sourced from the UN Population Division’s World Population Prospects 2022, updated periodically based on demographic projections. Ladder of Life scores are collected annually by Gallup World Poll through surveys of around 1,000 individuals per country, asking respondents to rate their life satisfaction on a scale of 0 to 10, with results weighted to match national demographics. Carbon Footprint data is taken from the World Inequality Database, providing per capita estimates based on national accounts, and GDP per capita comes from global financial institutions like the World Bank. Some missing values are imputed using adjacent years, creating uncertainty, while survey sampling limitations and time lags in the 2024 rankings (based on 2021 data) may affect accuracy.</p>
-<p>The data set is provided in a excel format. We save the data sheet as a csv file and import it using read_csv.</p>
+<p>The data set selected is from the Happy Planet Index (HPI) provided by HotorCool. It contains rankings for countries from 2006-2021 based on data from the corresponding years. For year, the data set includes columns HPI rank, Country, ISO, Continent, Population, Life Expectancy, Ladder of Life (Wellbeing), Carbon Footprint, CO2 threshold, GDP per capita, and HPI. For the latest 2024 data set, Life Expectancy data is sourced from the UN Population Division’s World Population Prospects 2022, updated periodically based on demographic projections. Ladder of Life scores are collected annually by Gallup World Poll through surveys of around 1,000 individuals per country, asking respondents to rate their life satisfaction on a scale of 0 to 10, with results weighted to match national demographics. Carbon Footprint data is taken from the World Inequality Database, providing per capita estimates based on national accounts, and GDP per capita comes from global financial institutions like the World Bank. Some missing values are imputed using adjacent years, creating uncertainty, while survey sampling limitations and time lags in the 2024 rankings may affect accuracy.</p>
+<p>The data set is provided in a excel format. We save the data sheet for each year as a csv file and integrate the data sets from 2006 to 2021 to one in R.</p>
 <p># 2.2</p>
 <div class="cell">
 <details class="code-fold">
@@ -239,18 +239,18 @@ Attaching package: 'dplyr'</code></pre>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>hpi_2024 <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">" All countries_20211.csv"</span>, <span class="at">skip=</span><span class="dv">8</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>hpi <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/hpi.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stderr">
 <pre><code>New names:
-• `` -&gt; `...4`</code></pre>
+• `...4` -&gt; `...14`</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Rows: 149 Columns: 12
+<pre><code>Rows: 2384 Columns: 14
 ── Column specification ────────────────────────────────────────────────────────
 Delimiter: ","
-chr (3): Country, ISO, ...4
-dbl (9): HPI rank, Continent, Population (thousands), Life Expectancy (years...
+chr  (4): Country, ISO, ...5, ...14
+dbl (10): ...1, HPI rank, Continent, Population (thousands), Life Expectancy...
 
 ℹ Use `spec()` to retrieve the full column specification for this data.
 ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
@@ -259,16 +259,17 @@ dbl (9): HPI rank, Continent, Population (thousands), Life Expectancy (years...
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>missing_values <span class="ot">&lt;-</span> <span class="fu">colSums</span>(<span class="fu">is.na</span>(hpi_2024))</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>bar_plot <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="fu">data.frame</span>(<span class="at">Column =</span> <span class="fu">names</span>(missing_values), <span class="at">Missing =</span> missing_values), </span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">aes</span>(<span class="at">x =</span> Column, <span class="at">y =</span> Missing, <span class="at">fill =</span> Column)) <span class="sc">+</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Count of Missing Values per Column"</span>, <span class="at">x =</span> <span class="st">"Columns"</span>, <span class="at">y =</span> <span class="st">"Count of Missing Values"</span>) <span class="sc">+</span></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>,</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>)) <span class="sc">+</span> <span class="co"># Tilt x-axis labels</span></span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_brewer</span>(<span class="at">palette =</span> <span class="st">"Set3"</span>)</span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>bar_plot</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>hpi <span class="ot">&lt;-</span> hpi <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="sc">-</span><span class="st">`</span><span class="at">...5</span><span class="st">`</span>, <span class="sc">-</span><span class="st">`</span><span class="at">...14</span><span class="st">`</span>, <span class="sc">-</span><span class="st">`</span><span class="at">...1</span><span class="st">`</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>missing_values <span class="ot">&lt;-</span> <span class="fu">colSums</span>(<span class="fu">is.na</span>(hpi))</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>bar_plot <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="fu">data.frame</span>(<span class="at">Column =</span> <span class="fu">names</span>(missing_values), <span class="at">Missing =</span> missing_values), </span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">aes</span>(<span class="at">x =</span> Column, <span class="at">y =</span> Missing, <span class="at">fill =</span> Column)) <span class="sc">+</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Count of Missing Values per Column"</span>, <span class="at">x =</span> <span class="st">"Columns"</span>, <span class="at">y =</span> <span class="st">"Count of Missing Values"</span>) <span class="sc">+</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>,</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>)) <span class="sc">+</span> </span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_brewer</span>(<span class="at">palette =</span> <span class="st">"Set3"</span>)</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>bar_plot</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -278,13 +279,13 @@ dbl (9): HPI rank, Continent, Population (thousands), Life Expectancy (years...
 </div>
 </div>
 </div>
-<p>The data does not exhibit any obvious missing values. However, as mentioned in the HPI 2024 methodology report, some missing values may have been imputed using data from adjacent years.</p>
+<p>The data does not exhibit any obvious missing values after we remove the three columns that are duplicate with country labels. However, as mentioned in the HPI 2024 methodology report, some missing values may have been imputed using data from adjacent years.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>hpi_2024<span class="sc">$</span>IsMissing <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(hpi_2024<span class="sc">$</span><span class="st">`</span><span class="at">Ladder of life (Wellbeing) (0-10)</span><span class="st">`</span> <span class="sc">==</span> <span class="dv">0</span>, <span class="st">"0"</span>, <span class="st">"Other Values"</span>)</span>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>hpi<span class="sc">$</span>IsMissing <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(hpi<span class="sc">$</span><span class="st">`</span><span class="at">Ladder of life (Wellbeing) (0-10)</span><span class="st">`</span> <span class="sc">==</span> <span class="dv">0</span>, <span class="st">"0"</span>, <span class="st">"Other Values"</span>)</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>missing_plot <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(hpi_2024, <span class="fu">aes</span>(<span class="at">x =</span> IsMissing, <span class="at">fill =</span> IsMissing)) <span class="sc">+</span> <span class="fu">geom_bar</span>(<span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span> <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Missing (0)"</span> <span class="ot">=</span> <span class="st">"pink"</span>, <span class="st">"Other Values"</span> <span class="ot">=</span> <span class="st">"lightblue"</span>)) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Distribution of Missing (0) vs Other Values"</span>, <span class="at">x =</span> <span class="st">"Value Type"</span>, <span class="at">y =</span> <span class="st">"Count"</span>) <span class="sc">+</span> <span class="fu">theme_minimal</span>()</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>missing_plot <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(hpi, <span class="fu">aes</span>(<span class="at">x =</span> IsMissing, <span class="at">fill =</span> IsMissing)) <span class="sc">+</span> <span class="fu">geom_bar</span>(<span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span> <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"0"</span> <span class="ot">=</span> <span class="st">"pink"</span>, <span class="st">"Other Values"</span> <span class="ot">=</span> <span class="st">"lightblue"</span>)) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Distribution of Value 0 vs Other Values"</span>, <span class="at">x =</span> <span class="st">"Value Type"</span>, <span class="at">y =</span> <span class="st">"Count"</span>) <span class="sc">+</span> <span class="fu">theme_minimal</span>()</span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(missing_plot)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
@@ -296,7 +297,7 @@ dbl (9): HPI rank, Continent, Population (thousands), Life Expectancy (years...
 </div>
 </div>
 </div>
-<p>However, there are 0 values in the HPI scores and the Ladder of Life columns, which may indicate missing data in the Ladder of Life scores. Based on the calculation methodology for the HPI score, a 0 in the HPI score might be directly influenced by a 0 in the Ladder of Life column. Therefore, we analyze the number of 0 values in the Ladder of Life column to observe the potential missing values. We can see that there are only two 0 scores for Ladder of Life columns, which are for Sudan and Burundi.</p>
+<p>However, there are 0 values in the HPI scores and the Ladder of Life columns, which likely indicate missing data in the Ladder of Life scores. Given the calculation methodology for the HPI score, a 0 in the HPI score is caused by a 0 in the Ladder of Life column. To better understand the extent of missing data, we analyzed the number of 0 values in the Ladder of Life column and found that there are approximately 250 occurrences across the years. For the analysis, countries with 0 values may be excluded as they do not contribute meaningful information to the results.</p>
 
 
 </section>
