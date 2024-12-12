@@ -18,5 +18,15 @@
     "crumbs": [
       "<span class='chapter-number'>2</span>  <span class='chapter-title'>data</span>"
     ]
+  },
+  {
+    "objectID": "d3graph.html",
+    "href": "d3graph.html",
+    "title": "4  Interactive graph",
+    "section": "",
+    "text": "Global Happiness Map Throughout Years\n\n\nThis map illustrates the Happy Planet Index (HPI) scores across different countries from 2006 to 2021. Scroll the bar below the map to change years. The darker the color indicates a higher HPI score.",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Interactive graph</span>"
+    ]
   }
 ]

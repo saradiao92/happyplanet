@@ -22,7 +22,7 @@ const tooltip = d3.select("body")
 const sliderContainer = d3.select("body")
     .append("div")
     .style("position", "absolute")
-    .style("top", `${height + 100}px`) 
+    .style("top", `${height + 250}px`) 
     .style("left", "50%")
     .style("transform", "translateX(-50%)")
     .style("width", `${width * 0.8}px`)
@@ -59,7 +59,7 @@ const colorScale = d3.scaleSequential(d3.interpolateBlues)
 
 Promise.all([
     d3.json("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson"),
-    d3.csv("https://raw.githubusercontent.com/hanq0223/happyplanet/main/data/hpi_map.csv")
+    d3.csv("https://raw.githubusercontent.com/hanq0223/happyplanet/refs/heads/main/data/hpi_map_full.csv")
 ]).then(([geoData, hpiData]) => {
     const parsedData = d3.group(hpiData, d => d.year);
     const years = Array.from(parsedData.keys()).sort();
