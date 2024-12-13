@@ -9,68 +9,21 @@ library(tidyr)
 library(ggrepel)
 library(tidyverse)
 library(reshape2)
-hpi_2006 <- read_csv("hpi_2006.csv")
-hpi_2011 <- read_csv("hpi_2011.csv")
-hpi_2016 <- read_csv("hpi_2016.csv")
-hpi_2021 <- read_csv("hpi_2021.csv")
-hpi_2024 <- read_csv("All countries_20211.csv", skip=8, show_col_types = FALSE)
-past_HPI <- read_csv("Historical_HPI.csv", show_col_types = FALSE)
+library(scales)
+
+hpi_2006 <- read_csv("data/hpi_2006.csv")
+hpi_2011 <- read_csv("data/hpi_2011.csv")
+hpi_2016 <- read_csv("data/hpi_2016.csv")
+hpi_2021 <- read_csv("data/hpi_2021.csv")
+hpi_2024 <- read_csv("data/All countries_20211.csv", skip=8, show_col_types = FALSE)
+past_HPI <- read_csv("data/Historical_HPI.csv", show_col_types = FALSE)
 past_HPI[is.na(past_HPI)] <- 0
 ```
 
-## HPI through the years
-Let's investigate how HPI varies across years. The plot below shows the HPI for top 20 countries from 2006 to 2021. It is noticeable that Costa Rica has the highest mean HPI, and Sweden has the highest HPI in 2021. Overall, Costa Rica shows obviously high happiness. 
 
-```{r, message = FALSE, warning = FALSE}
-past_HPI$Mean_HPI <- rowMeans(past_HPI[, 2:17], na.rm = TRUE)
+## What is the overall trend for HPI
 
-past_HPI_long <- past_HPI %>%
-  pivot_longer(cols = `2006`:`2021`, names_to = "Year", values_to = "HPI") %>%
-  mutate(Year = as.numeric(gsub("HPI_", "", Year))) # Extract year from column names
-
-top_countries <- past_HPI %>%
-  arrange(desc(Mean_HPI)) %>%
-  head(20) %>%
-  arrange(Mean_HPI)
-
-past_HPI_long <- past_HPI_long %>%
-  filter(Country %in% top_countries$Country)
-
-# Create the plot
-ggplot(data = past_HPI_long, aes(x = HPI, y = reorder(Country, Mean_HPI))) +
-  # Historic scores (keep light gray as before)
-  geom_point(color = "gray", size = 1.5, alpha = 0.5) +
-  # Mean score (solid yellow, smaller size)
-  geom_point(data = top_countries, aes(x = Mean_HPI, y = reorder(Country, Mean_HPI)),
-             color = "#33a02c", size = 3, shape = 16) +
-  # 2021 score (solid blue, smaller size)
-  geom_point(data = filter(past_HPI_long, Year == 2021),
-             aes(x = HPI, y = Country), color = "#4682B4", size = 3, shape = 16) +
-  # Add dashed horizontal lines for countries
-  geom_hline(yintercept = seq_along(top_countries$Country), color = "gray40", linetype = "dashed", size = 0.2) +
-  # Titles and labels
-  labs(title = "Happiness Index through the Years",
-       subtitle = "The happiness levels are largely consistnet across the countries.\nCosta Rica's mean score is the highest, while Sweden's 2021 score is the highest.",
-       x = "Happiness Index", y = NULL) +
-  # Theme adjustments
-  theme_minimal(base_family = "sans") +
-  theme(
-    panel.grid.major.y = element_blank(),
-    panel.grid.minor = element_blank(),
-    axis.text.y = element_text(hjust = 1, color = "gray40"),
-    axis.title.x = element_text(hjust = 0, color = "gray40"),
-    plot.title = element_text(size = 17, face = "bold"),
-    plot.subtitle = element_text(size = 12, color = "gray40")
-  )+
-  annotate("text", x = max(past_HPI_long$HPI, na.rm = TRUE), y = 1, 
-           label = "2021 score", hjust = 1.5, size = 4, color = "#4682B4") +
-  annotate("text", x = max(top_countries$Mean_HPI, na.rm = TRUE), y = 2, 
-           label = "Mean score", hjust = 1.5, size = 4, color = "#33a02c")
-```
-
-## Overall trend from 2006 to 2021 for all countries
-
-To further learn the pattern of HPI from 2006 to 2021, we take all countries in account instead of only the top 20 ones. We pick year 2006, 2011, 2016, and 2021 for comparison.
+We begin by investigating the learn the general pattern of HPI from 2006 to 2021. We pick year 2006, 2011, 2016, and 2021 for comparison.
 
 ```{r}
 hpi_2006_hist <- hpi_2006 %>% 
@@ -107,72 +60,71 @@ ggplot(combined_data, aes(x = HPI)) +
     breaks = seq(0, 60, by = 10), 
   ) +
   labs(
-    title = "Distribution of Happy Planet Index (HPI) by Year",
+    title = "Distribution of Happy Planet Index (HPI)",
     x = "HPI Score",
     y = "Count"
   )
 
 ```
 
-This plot shows the distribution of HPI scores for year 2006, 2011, 2016, 2021. The year 2006 marks the starting point of the survey, while 2021 represents the most recent data. Rows with HPI scores of 0, which indicate missing values, were excluded from the dataset. The distribution reveals notable variability across the years.
-In 2006, the distribution appears slightly right-skewed, with a noticeable peak around 30-40. In 2011, the distribution becomes slightly symmetrical, with most scores concentrated between 30 and 50. In 2006, the distribution shifts slightly upward, with a noticeable concentration around 35-50. In 2021, the distribution shifts downward, with most scores falling between 25 and 50. This plot highlights how global well-being has evolved over time.
+This plot illustrates the distribution of Happy Planet Index (HPI) scores across four key years: 2006, 2011, 2016, and 2021. The year 2006 marks the inception of the survey, while 2021 represents the latest available data. Rows with HPI scores of 0, indicating missing values, were excluded to ensure an accurate analysis of the distribution patterns.
 
+The data reveals notable variability in HPI scores across the years. In 2006, the distribution is slightly right-skewed, with a noticeable peak around 30-40. By 2011, the distribution becomes more symmetrical, with most scores concentrated between 30 and 50. In 2016, the distribution shifts slightly upward, showing a higher concentration in the range of 35-50. However, in 2021, the distribution shifts downward, with most scores falling between 25 and 50.
 
-## Continental view
+This analysis underscores the dynamic nature of global well-being over time, reflecting shifts in sustainable well-being and life satisfaction across countries.
 
-Grouped by continents, let's see how each of them perform! To clearly visualize the HPI by continents, we regroup 8 of them to 4 in total. 
+## Exploration on happinest countries
+
+Let's investigate the HPI for some of the happiest countries in the world. The plot below shows the HPI for top 20 countries from 2006 to 2021. The blue dots indicate the mean HPI score across year and the yellow dots shows the score for 2021.
 
 ```{r, message = FALSE, warning = FALSE}
-hpi_2024 <- hpi_2024 %>%
-  mutate(Region_Group = case_when(
-    Continent %in% c(1, 2) ~ "Americas",                  # Latin America, N. America & Oceania
-    Continent %in% c(3, 7) ~ "Europe & Central Asia",     # Western Europe, Eastern Europe & Central Asia
-    Continent %in% c(4, 6, 8) ~ "Asia & Middle East",     # Middle East, South Asia, East Asia
-    Continent == 5 ~ "Africa",                            # Africa                                
-  ))
+past_HPI$Mean_HPI <- rowMeans(past_HPI[, 2:17], na.rm = TRUE)
 
-ggplot(hpi_2024, aes(
-  x = `Ladder of life (Wellbeing) (0-10)`,
-  y = HPI,                                 
-  color = Region_Group                     
-)) +
-  geom_point(size = 3, alpha = 0.8) +
-  labs(
-    title = "Happiness Index and Life Expectancy by Region",
-    subtitle = "Relationship between HPI and Wellbeing across regions",
-    x = "Ladder of life (Wellbeing)",
-    y = "Happiness Index",
-    color = "Region Group"
-  ) +
+past_HPI_long <- past_HPI %>%
+  pivot_longer(cols = `2006`:`2021`, names_to = "Year", values_to = "HPI") %>%
+  mutate(Year = as.numeric(gsub("HPI_", "", Year))) 
+
+top_countries <- past_HPI %>%
+  arrange(desc(Mean_HPI)) %>%
+  head(20) %>%
+  arrange(Mean_HPI)
+
+past_HPI_long <- past_HPI_long %>%
+  filter(Country %in% top_countries$Country)
+
+ggplot(data = past_HPI_long, aes(x = HPI, y = reorder(Country, Mean_HPI))) +
+  geom_point(color = "gray", size = 1.5, alpha = 0.5) +
+  geom_point(data = top_countries, aes(x = Mean_HPI, y = reorder(Country, Mean_HPI), color = "Mean score"),
+             size = 3, shape = 16) +
+  geom_point(data = filter(past_HPI_long, Year == 2021),
+             aes(x = HPI, y = Country, color = "2021 score"), size = 3, shape = 16) +
+  geom_hline(yintercept = seq_along(top_countries$Country), color = "gray40", linetype = "dashed", size = 0.2) +
+  labs(title = "Happiness Index through the Years",
+       x = "Happiness Index", y = NULL, color = NULL) +
   scale_color_manual(
-    values = c(
-      "Americas" = "#4682B4",
-      "Europe & Central Asia" = "#33a02c",
-      "Asia & Middle East" = "#CC6666",
-      "Africa" = "#D97D0D"
-    )
+    values = c("Mean score" = "#33a02c", "2021 score" = "#4682B4"),
+    labels = c("Mean score", "2021 score")
   ) +
-  # Customize the theme
   theme_minimal(base_family = "sans") +
   theme(
-    panel.grid.major = element_blank(),
+    panel.grid.major.y = element_blank(),
     panel.grid.minor = element_blank(),
-    panel.background = element_rect(fill = "#fbfbfb"),
-    plot.background = element_rect(fill = "#fbfbfb"),
-    plot.title = element_text(size = 17, face = "bold", color = "#323232"),
-    plot.subtitle = element_text(size = 12, face = "italic", color = "gray40"),
-    axis.title.x = element_text(size = 10, face = "bold", color = "#323232"),  # Removed `family`
-    axis.title.y = element_text(size = 10, face = "bold", color = "#323232"),
-    legend.position = "right",
-    legend.background = element_blank(),
-    legend.box.background = element_rect(fill = "transparent", color = NA)
+    axis.text.y = element_text(hjust = 1, color = "gray40"),
+    axis.title.x = element_text(hjust = 0, color = "gray40"),
+    plot.title = element_text(size = 17, face = "bold"),
+    plot.subtitle = element_text(size = 12, color = "gray40"),
+    legend.position = "right" 
   )
 ```
-We can see that Americas and Europe & Central Asia tend to have high HPI and Wellbeing; Asia & Middle East has a wide spread, which shows large variation; and Africa shows obviously low HPI and Wellbeing. From this plot, we can also recognize that there is a strong positive relationship. 
+
+The plot highlights the variance and overall trends for countries with high HPI scores over the years. In many cases, the green dots (mean scores) and blue dots (2021 scores) are closely aligned, indicating consistency in performance across years. However, in some instances, a noticeable gap exists between the two points, suggesting either a decline or improvement in HPI in recent years. For example, Sweden shows a significant increase in 2021 compared to its mean score.
+
+This visualization provides valuable insights into the happiest countries globally. By further investigating these nations, we can explore the traits or policies contributing to their high HPI. Additionally, the plot reveals that most countries with high HPI scores are concentrated in Europe and Asia, which brings us to the next question: What is the variance of HPI across continents.
+
 
 ## Continental Variance
 
-To better understanding the differences between continents, we plot boxplots for all of the 8 continent.
+To better understanding the differences between continents, we plot a boxplot for all of the 8 continent.
 ```{r, message = FALSE, warning = FALSE}
 library(RColorBrewer)
 continent_mapping <- c(
@@ -207,11 +159,12 @@ ggplot(hpi_2021, aes(x = HPI, y = ContinentName, fill = ContinentName)) +
     y = ""
   )
 ```
-This boxplot illustrates the variance of HPI scores across 8 continents with 2021 ranking. Western Europe, Latin America, and North America & Oceania show higher overall scores and tighter distributions, suggesting consistent well-being. In contrast, Africa and the Middle East & North Africa exhibit wider variability, indicating more significant disparities in well-being within these regions. This analysis emphasizes the importance of regional and local context when addressing global well-being challenges.
+This boxplot illustrates the variance of HPI scores across 8 continents with the 2021 ranking. Western Europe, Latin America, and North America & Oceania show higher overall scores and tighter distributions, suggesting the well-being of residents in those area. In contrast, Africa and the Middle East & North Africa exhibit wider variability, indicating more significant disparities in well-being within these regions. This analysis emphasizes the importance of regional and local context when addressing global well-being challenges.
+
 
 ## Differences between happy and unhappy countries
 
-We define happy countries if their HPI is higher than the average, otherwise they are unhappy countries. Five variables are included here: population, life expectancy, wellbeing, GDP per capita, and carbon foorprint. 
+We define happy countries if their HPI is higher than the average, otherwise they are unhappy countries. We attempt to examine what makes the difference between happy and unhappy countries. Five variables are included here: population, life expectancy, wellbeing, GDP per capita, and carbon foorprint. 
 ```{r, message = FALSE, warning = FALSE}
 library(gridExtra)
 library(grid) 
@@ -221,20 +174,24 @@ hpi_avg <- mean(hpi_2024$HPI, na.rm = TRUE)  # Calculate average HPI
 hpi_2024 <- hpi_2024 %>%
   mutate(Lower_Happy = ifelse(HPI < hpi_avg, "Unhappy", "Happy"))  # Add split column
 
+
+hpi_2024$Population <- hpi_2024$`Population (thousands)` / 1e3
+
 variables <- c(
-  "Population (thousands)",
+  "Population",
   "Life Expectancy (years)",
   "Ladder of life (Wellbeing) (0-10)",
   "GDP per capita ($)",
   "Carbon Footprint (tCO2e)"
 )
 titles <- c(
-  "Population Distribution",
+  "Population(Million) Distribution",
   "Life Expectancy Distribution",
   "Wellbeing Distribution",
   "GDP per Capita Distribution",
   "Carbon Footprint (tCO2e)"
 )
+
 
 plot_list <- lapply(seq_along(variables), function(i) {
   var <- variables[i]  
@@ -261,7 +218,6 @@ combined_plot <- wrap_plots(plot_list, ncol = 3) +
   plot_layout(guides = "collect") +  # Collect a single shared legend
   plot_annotation(
     title = "Differences Between Happy & Unhappy Countries",
-    subtitle = "There are large differences, with Life Expectancy and Wellbeing.",
     theme = theme(
       plot.title = element_text(size = 15, face = "bold", hjust = 0.5, color = "#323232"),
       plot.subtitle = element_text(size = 12, face = "italic", hjust = 0.5, color = "gray"),
@@ -273,11 +229,66 @@ combined_plot <- wrap_plots(plot_list, ncol = 3) +
 print(combined_plot)
 
 ```
-From the plot, happy countries show remarkable high life expectancy and wellbeing, which is consistent to the trend we explored on the previous plot. Unhappy countries have longer right tails for carbon footprint, which is reasonable since extremely high carbon emission will reduce their quality of life. A great proportion of unhappy countries have extremely low GDP per capita. It is surprising that many unhappy countries have low carbon footprint, but at the same time, some of them have very high carbon footprint. Low carbon foot print may be due to lack of technology in industries, so they do not have many machines working. 
+From the plot, happy countries consistently exhibit notably high life expectancy and wellbeing scores. In contrast, unhappy countries display longer right tails for carbon footprint, which aligns with the notion that excessive carbon emissions negatively impact quality of life. A significant proportion of unhappy countries also have extremely low GDP per capita, highlighting economic challenges. Interestingly, while many unhappy countries have low carbon footprints, others exhibit exceptionally high levels. Low carbon footprints might be attributed to a lack of industrial technology, resulting in fewer machines and lower levels of industrial activity.
 
-## Linear relatinship between HPI and Ladder of Life
 
-Since the scatter plot for continents already show the relationship between HPI and wellbeing, now we wan to investigate the relationship bewteen HPI and life expectancy. 
+## Relationship between the HPI and Well Being Score
+
+Let's further examine the relationship between HPI and Well Being Score. We also take into account for the continental difference. To clearly visualize the HPI by continents, we regroup 8 of them to 4 in total. 
+
+```{r, message = FALSE, warning = FALSE}
+hpi_2024 <- hpi_2024 %>%
+  mutate(Region_Group = case_when(
+    Continent %in% c(1, 2) ~ "Americas",                  # Latin America, N. America & Oceania
+    Continent %in% c(3, 7) ~ "Europe & Central Asia",     # Western Europe, Eastern Europe & Central Asia
+    Continent %in% c(4, 6, 8) ~ "Asia & Middle East",     # Middle East, South Asia, East Asia
+    Continent == 5 ~ "Africa",                            # Africa                                
+  ))
+
+ggplot(hpi_2024, aes(
+  x = `Ladder of life (Wellbeing) (0-10)`,
+  y = HPI,                                 
+  color = Region_Group                     
+)) +
+  geom_point(size = 3, alpha = 0.8) +
+  labs(
+    title = "Happiness Index and Well beging by Region",
+    x = "Ladder of life (Wellbeing) Score",
+    y = "Happiness Index",
+    color = "Region Group"
+  ) +
+  scale_color_manual(
+    values = c(
+      "Americas" = "#4682B4",
+      "Europe & Central Asia" = "#33a02c",
+      "Asia & Middle East" = "#CC6666",
+      "Africa" = "#D97D0D"
+    )
+  ) +
+  # Customize the theme
+  theme_minimal(base_family = "sans") +
+  theme(
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.background = element_rect(fill = "#fbfbfb"),
+    plot.background = element_rect(fill = "#fbfbfb"),
+    plot.title = element_text(size = 17, face = "bold", color = "#323232"),
+    plot.subtitle = element_text(size = 12, face = "italic", color = "gray40"),
+    axis.title.x = element_text(size = 10, face = "bold", color = "#323232"),  # Removed `family`
+    axis.title.y = element_text(size = 10, face = "bold", color = "#323232"),
+    legend.position = "right",
+    legend.background = element_blank(),
+    legend.box.background = element_rect(fill = "transparent", color = NA)
+  )
+```
+
+The plot highlights the strong positive association between happiness and wellbeing across regions. Countries in Europe & Central Asia show the highest combined levels of wellbeing and happiness, while Africa generally lags in both metrics. These insights underline the importance of focusing on wellbeing improvements to enhance happiness, especially in underperforming regions. Further investigation into specific factors contributing to the variability within and across regions, such as economic conditions, governance, and cultural practices, could provide valuable insights into strategies for improving global happiness.
+
+
+
+## Relatinship between HPI and Life Expectancy
+we now shift our focus to exploring the relationship between HPI and life expectancy.
+
 ```{r, message = FALSE, warning = FALSE}
 
 hpi_2024 <- hpi_2024 %>%
@@ -306,11 +317,111 @@ ggplot(hpi_clean, aes(x = Life_Expectancy, y = HPI)) +
   ) +
   theme_minimal()
 ```
-The linear regression analysis indicates a significant positive relationship between Life Expectancy and Happiness Index (HPI). The regression coefficient for Life Expectancy is 0.812, meaning that for every additional year of life expectancy, the HPI is expected to increase by approximately 0.81 points. The results highlight that Life Expectancy is a significant contributor of HPI.
+The linear regression analysis reveals a significant positive relationship between Life Expectancy and HPI. Specifically, the regression coefficient for Life Expectancy is 0.812, indicating that each additional year of life expectancy is associated with an approximate 0.81-point increase in HPI. These findings underscore the crucial role of Life Expectancy to HPI, suggesting that the lengh of life plays a big role in the happiness of residents in a country.
 
-## See how random countries vary across years
 
-Here 8 randomly picked countries are plotted for their HPI in 2006 and 2021. Countries with missing value for HPI are removed for a better visualization. We want to see what pattern we can learn.
+## Other factors
+We want to further examine what are the correlation among variables. 
+```{r, message = FALSE, warning = FALSE}
+
+hpi_2024 <- hpi_2024 %>%
+  mutate(
+    Above_CO2_Threshold = ifelse(
+      `Carbon Footprint (tCO2e)` > `CO2 threshold for year  (tCO2e)`, 1, 0
+    )
+  )
+
+
+heatmap_data <- hpi_2024 %>%
+  select(
+    HPI,
+    Population = `Population (thousands)`,
+    Life_Expectancy,
+    Wellbeing = `Ladder of life (Wellbeing) (0-10)`,
+    GDP_per_capita = `GDP per capita ($)`,
+    Above_CO2_Threshold
+  )
+
+# Ensure numeric columns for correlation (convert boolean if needed)
+heatmap_data$Above_CO2_Threshold <- as.numeric(heatmap_data$Above_CO2_Threshold)
+
+# Compute the correlation matrix
+cor_matrix <- cor(heatmap_data, use = "complete.obs")
+
+# Melt the correlation matrix for ggplot
+melted_cor_matrix <- melt(cor_matrix)
+
+# Create the heatmap
+ggplot(data = melted_cor_matrix, aes(x = Var1, y = Var2, fill = value)) +
+  geom_tile(color = "white") +
+  geom_text(aes(label = round(value, 2)), color = "black", size = 3) +  # Add correlation values
+  scale_fill_gradient(low = "white", high = "#8C2B3D", name = "Correlation") +
+  labs(
+    title = "Heatmap of HPI and Selected Variables",
+    x = "Variables",
+    y = "Variables"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
+    axis.title = element_text(size = 12, face = "bold"),
+    plot.title = element_text(size = 14, face = "bold", hjust = 0.5)
+  )
+
+```
+This heatmap underscores the multifaceted nature of HPI, influenced by well-being, longevity, economic factors, and environmental sustainability. The strong correlations between HPI and subjective well-being (Ladder of Life) and Life Expectancy again confirms the importance of quality of life metrics in assessing national happiness. The weak association with GDP per Capita suggests that economic wealth alone is not a primary driver of HPI, which may be anti-intuition. 
+
+## Changes Over Time
+
+After examining the important variables for determining the HPI, we want to take a look at the changes in countries for HPI. Is the unhappy countries getting happier? And vice versa. We select the 5 most happinest countries in 2006 and 5 least happiest countries in 2006 and track their change of HPI across years. 
+
+```{r}
+data_2006 <- past_HPI %>%
+  filter(`2006` != 0) %>%
+  select(Country, `2006`)
+
+lowest_2006 <- data_2006 %>%
+  filter(Country != "Togo") %>% # Exclude Togo for missing values
+  arrange(`2006`) %>%          
+  head(5)
+
+highest_2006 <- data_2006 %>%
+  arrange(desc(`2006`)) %>%
+  head(5)
+
+selected_countries <- rbind(lowest_2006, highest_2006)
+filtered_HPI <- past_HPI %>%
+  filter(Country %in% selected_countries$Country)
+
+filtered_HPI_long <- filtered_HPI %>%
+  pivot_longer(
+    cols = -Country,
+    names_to = "Year",
+    values_to = "HPI"
+  )
+
+ggplot(filtered_HPI_long, aes(x = Year, y = HPI, color = Country, group = Country)) +
+  geom_line(size = 0.5) +
+  geom_point(size = 1) +
+  labs(
+    title = "Changes over Years",
+    x = "Year",
+    y = "HPI",
+    color = "Country"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    plot.title = element_text(hjust = 0.5, size = 14, face = "bold")
+  )
+```
+This plot highlights the consistent differences in well-being among countries over time. High-performing nations like Costa Rica and Colombia consistently maintain scores above 50, reflecting stability and progress, while countries like Zimbabwe, and Chad struggle with scores below 30. These variations point to disparities in economic, social, or environmental conditions. Notably, the high-performing countries exhibit remarkable stability, while lower-ranking nations experience more volatility, suggesting vulnerabilities to external or internal challenges. These trends underscore the need for targeted efforts to support struggling countries and sustain progress in happy ones.
+
+
+## Improvement and Regression of HPI across years
+
+We attempt to dive further into the changes of HPI throughout years. Specially, we now aim to look closer to the changes between 2006 and 2021 of a small sample of countries.
+
 ```{r, message = FALSE, warning = FALSE}
 # Randomly sample 8 countries
 set.seed(809)
@@ -357,7 +468,7 @@ ggplot() +
  
   labs(
     title = "Happiness Index Scores: 2006 vs 2021",
-    subtitle = "Random sample of countries showing HPI changes between 2006 and 2021",
+    subtitle = "Countries showing HPI changes between 2006 and 2021",
     x = NULL,
     y = "HPI"  
   ) +
@@ -377,12 +488,14 @@ ggplot() +
   )
 
 ```
-Countries like Nicaragua show significant improvement, with the highest increase in HPI, indicating progress in happiness. Nepal, and Sri Lanka remain relatively stable, indicating limited change. On the other hand, Rwanda and Kazakhstan show noticeable declines in HPI, reflecting potential challenges in maintaining life satisfaction. 
+The graph effectively highlights disparities in progress between 2006 and 2021. Countries like Nicaragua show significant improvement, with the highest increase in HPI, indicating progress in happiness. Nepal, and Sri Lanka remain relatively stable, indicating limited change. On the other hand, Rwanda and Kazakhstan show noticeable declines in HPI, reflecting potential challenges in maintaining life satisfaction. It gives us insights on further investigate on how countries like Nicaragua manage to improve its HPI.
 
-## What's biggest movers?
+## What are the biggest movers?
+
+The success of improving countries like Nicaragua prompts us to explore which other nations have made significant strides in their happiness levels. To investigate this, we selected the countries that have shown the most substantial changes over time.
+
 
 ```{r, message = FALSE, warning = FALSE}
-# Filter the top 20 biggest movers
 top_20 <- past_HPI %>%
   filter(`2006` != 0, `2021` != 0) %>%
   mutate(Change = abs(`2021` - `2006`)) %>%
@@ -398,15 +511,11 @@ plot_data <- top_20 %>%
   pivot_longer(cols = c(`2006`, `2021`), names_to = "Year", values_to = "HPI") %>%
   mutate(Year = as.numeric(Year))
 
-low_c <- "#CC6666"
-high_c <- "#33a02c" 
-neutral_c <- "#e7e9e7"
 
 
-ggplot(top_20, aes(x = reorder(Country, Change), y = Change, fill = Highlight)) +
+ggplot(top_20, aes(x = reorder(Country, Change), y = Change, fill = Change)) +
   geom_bar(stat = "identity", alpha = 0.7) +
-  scale_fill_manual(values = c("Top Increase" = high_c, "Top Decrease" = low_c, "Neutral" = neutral_c)) +
-  theme_minimal(base_family = "sans") +
+  scale_fill_gradient(low = "#56B1F7", high = "#132B43") + # Gradient color
   theme(
     axis.title.x = element_blank(),
     axis.title.y = element_blank(),
@@ -420,118 +529,17 @@ ggplot(top_20, aes(x = reorder(Country, Change), y = Change, fill = Highlight)) 
   labs(
     title = "The Biggest Movers",
     subtitle = "These countries have had the largest change in HPI between 2006 and 2021"
-   
   )
 
 ```
 This bar chart displays the top 20 countries with the largest changes in their Happy Planet Index (HPI) between 2006 and 2021, with green bars representing increases and red bars representing decreases. The countries with the most significant positive changes include Lebanon, Nicaragua, and India, while the most substantial negative changes are observed in Latvia, Benin, and Uzbekistan. From this plot, we can clearly see that HPI movements can vary a lot for different countries.
 
-## Other factors
-
-```{r, message = FALSE, warning = FALSE}
-
-hpi_2024 <- hpi_2024 %>%
-  mutate(
-    Above_CO2_Threshold = ifelse(
-      `Carbon Footprint (tCO2e)` > `CO2 threshold for year  (tCO2e)`, 1, 0
-    )
-  )
 
 
-heatmap_data <- hpi_2024 %>%
-  select(
-    HPI,
-    Population = `Population (thousands)`,
-    Life_Expectancy,
-    Ladder_of_Life = `Ladder of life (Wellbeing) (0-10)`,
-    GDP_per_capita = `GDP per capita ($)`,
-    Above_CO2_Threshold
-  )
-
-# Ensure numeric columns for correlation (convert boolean if needed)
-heatmap_data$Above_CO2_Threshold <- as.numeric(heatmap_data$Above_CO2_Threshold)
-
-# Compute the correlation matrix
-cor_matrix <- cor(heatmap_data, use = "complete.obs")
-
-# Melt the correlation matrix for ggplot
-melted_cor_matrix <- melt(cor_matrix)
-
-# Create the heatmap
-ggplot(data = melted_cor_matrix, aes(x = Var1, y = Var2, fill = value)) +
-  geom_tile(color = "white") +
-  geom_text(aes(label = round(value, 2)), color = "black", size = 3) +  # Add correlation values
-  scale_fill_gradient(low = "white", high = "#8C2B3D", name = "Correlation") +
-  labs(
-    title = "Heatmap of HPI and Selected Variables",
-    x = "Variables",
-    y = "Variables"
-  ) +
-  theme_minimal() +
-  theme(
-    axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
-    axis.title = element_text(size = 12, face = "bold"),
-    plot.title = element_text(size = 14, face = "bold", hjust = 0.5)
-  )
-
-```
-The heatmap highlights that subjective well-being (Ladder of Life) and Life Expectancy are the strongest predictors of HPI, underscoring the importance of health and perceived quality of life in fostering happiness. Economic factors, while relevant, play a secondary role, and ecological sustainability (Above CO2 Threshold) moderately supports happiness. 
-
-## PCA Analysis of Wellbeing, Life Expectancy, and the Happy Planet Index
-
-Since we already kniw that ladder of life and life expectancy are the top two factors contributing to higher HPI, now we will explore further. 
-```{r, message = FALSE, warning = FALSE}
-pca_data <- hpi_2024 %>%
-  select(
-    Ladder_of_Life = `Ladder of life (Wellbeing) (0-10)`,
-    Life_Expectancy,
-    HPI
-  ) %>%
-  drop_na()  # Remove rows with missing values
-
-# Standardize the data
-pca_scaled <- scale(pca_data)
-
-# Perform PCA
-pca_result <- prcomp(pca_scaled, center = TRUE, scale. = TRUE)
-
-# Extract PCA scores (for points)
-pca_scores <- as.data.frame(pca_result$x)
-pca_scores <- pca_scores %>%
-  mutate(HPI = pca_data$HPI)  # Add HPI back for context in visualization
-
-# Extract PCA loadings (for vectors)
-pca_loadings <- as.data.frame(pca_result$rotation)
-pca_loadings <- pca_loadings %>%
-  rownames_to_column(var = "Variable")
-
-# Visualize PCA with points and vectors
-ggplot() +
-  # Plot PCA scores (observations)
-  geom_point(data = pca_scores, aes(x = PC1, y = PC2, color = HPI), size = 4, alpha = 0.7) +
-  scale_color_gradient(low = "blue", high = "red", name = "HPI") +
-  # Plot PCA loadings (vectors)
-  geom_segment(data = pca_loadings, aes(
-    x = 0, y = 0, xend = PC1 * 5, yend = PC2 * 5  # Scale vectors for visibility
-  ), arrow = arrow(length = unit(0.2, "cm")), color = "black") +
-  geom_text_repel(data = pca_loadings, aes(
-    x = PC1 * 5, y = PC2 * 5, label = Variable
-  ), size = 5, color = "black") +
-  # Add titles and labels
-  labs(
-    title = "PCA Biplot: Ladder of Life and Life Expectancy",
-    x = "PC1 (Ladder of Life)",
-    y = "PC2 (Life Expectancy)"
-  ) +
-  theme_minimal() +
-  theme(
-    plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
-    axis.title = element_text(size = 12, face = "bold")
-  )
 
 
-```
-The PCA biplot illustrates the relationship between the "Ladder of Life" (PC1), "Life Expectancy" (PC2), and the Happy Planet Index (HPI). PC1 explains the variability primarily associated with subjective life wellbeing, while PC2 explains variability related to life expectancy. The arrows indicate that "Ladder of Life" and "Life Expectancy" contribute significantly to these components, with "HPI" showing a positive correlation with both. Countries with higher HPI values (red dots) tend to cluster around higher values of PC1 and PC2, suggesting that life satisfaction and life expectancy positively contribute to the HPI. Conversely, countries with low HPI values (blue dots) show lower PC1 and PC2 scores, reflecting poorer outcomes in these dimensions.
+
+
 
 
 
