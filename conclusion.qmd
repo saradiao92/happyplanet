@@ -1,3 +1,40 @@
 # Conclusion
 
-This result suggests that economic factors or material circumstances is not the only priority for a country even though many traditional ideas support it. For better human-being, there are other more important indicators we need to care about 
+This result suggests that economic factors or material circumstances is not the only priority for a country even though many traditional ideas support it. For better human-being, there are other more important indicators we need to care about. 
+Overall, happy countries tend to have these characteristics:
+- have long life expectancy
+- have higher ladder of life
+- be relatively wealthier
+- have not too much carbon emissions
+Of course, this research cannot represent the whole pattern. However, at least from this result, wealth and carbon emissions are highly related. If the country is very rich, then carbon emissions might be the byproduct of technology development. A moderate level of wealth is enough for people to have a happy life. Focusing solely on the pursuit of money will not guarantee greater human happiness.
+---
+
+**Limitations**: 
+
+1. Limited Number of Factors:
+
+   - The analysis only considers six primary factors (GDP, population, life expectancy, wellbeing, carbon footprint, and regions), potentially overlooking other important determinants of happiness.
+
+2. Lack of Specific Country Focus:
+
+   - The analysis does not narrow down to individual countries, which could provide deeper insights into localized factors influencing happiness.
+
+---
+**Future Directions**:
+
+1. Deeper Analysis of Regional Trends:
+
+   - Focus on specific regions or countries to understand unique drivers of happiness.
+   - Explore cultural, political, and environmental factors influencing happiness in these areas.
+
+2. Policy Recommendations:
+
+   - Develop some data-driven suggestions for governments and organizations to enhance happiness.
+   - Explore targeted policies that address key drivers such as health, income inequality, and environmental sustainability.
+
+3. Incorporate Additional Factors:
+
+   - Include variables like income, education quality, family condition, and mental health resources.
+   - Examine how these factors interact with existing drivers of happiness.
+
+---
