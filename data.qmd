@@ -17,20 +17,17 @@ library(readxl)
 library(dplyr)
 library(readr)
 library(ggplot2)
-<<<<<<< HEAD
 hpi_2024 <- read_csv("All countries_20211.csv", skip=8)
 ```
 
 ```{r, message = FALSE, warning = FALSE}
 missing_values <- colSums(is.na(hpi_2024))
-=======
 hpi <- read_csv("data/hpi.csv")
 ```
 
 ```{r}
 hpi <- hpi %>% select(-`...5`, -`...14`, -`...1`)
 missing_values <- colSums(is.na(hpi))
->>>>>>> 58df64aabbd27501d8e707824f4591e9b95a5007
 bar_plot <- ggplot(data.frame(Column = names(missing_values), Missing = missing_values), 
                    aes(x = Column, y = Missing, fill = Column)) +
   geom_bar(stat = "identity", color = "black") +
@@ -47,10 +44,7 @@ The data does not exhibit any obvious missing values after we remove the three c
 <<<<<<< HEAD
 ```{r, message = FALSE, warning = FALSE}
 hpi_2024$IsMissing <- ifelse(hpi_2024$`Ladder of life (Wellbeing) (0-10)` == 0, "0", "Other Values")
-=======
-```{r}
 hpi$IsMissing <- ifelse(hpi$`Ladder of life (Wellbeing) (0-10)` == 0, "0", "Other Values")
->>>>>>> 58df64aabbd27501d8e707824f4591e9b95a5007
 
 missing_plot <- ggplot(hpi, aes(x = IsMissing, fill = IsMissing)) + geom_bar(color = "black") + scale_fill_manual(values = c("0" = "pink", "Other Values" = "lightblue")) + labs(title = "Distribution of Value 0 vs Other Values", x = "Value Type", y = "Count") + theme_minimal()
 
