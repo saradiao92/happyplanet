@@ -496,6 +496,7 @@ The success of improving countries like Nicaragua prompts us to explore which ot
 
 
 ```{r, message = FALSE, warning = FALSE}
+# Filter the top 20 biggest movers
 top_20 <- past_HPI %>%
   filter(`2006` != 0, `2021` != 0) %>%
   mutate(Change = abs(`2021` - `2006`)) %>%
@@ -511,11 +512,15 @@ plot_data <- top_20 %>%
   pivot_longer(cols = c(`2006`, `2021`), names_to = "Year", values_to = "HPI") %>%
   mutate(Year = as.numeric(Year))
 
+low_c <- "#CC6666"
+high_c <- "#33a02c" 
+neutral_c <- "#e7e9e7"
 
 
-ggplot(top_20, aes(x = reorder(Country, Change), y = Change, fill = Change)) +
+ggplot(top_20, aes(x = reorder(Country, Change), y = Change, fill = Highlight)) +
   geom_bar(stat = "identity", alpha = 0.7) +
-  scale_fill_gradient(low = "#56B1F7", high = "#132B43") + # Gradient color
+  scale_fill_manual(values = c("Top Increase" = high_c, "Top Decrease" = low_c, "Neutral" = neutral_c)) +
+  theme_minimal(base_family = "sans") +
   theme(
     axis.title.x = element_blank(),
     axis.title.y = element_blank(),
@@ -529,6 +534,7 @@ ggplot(top_20, aes(x = reorder(Country, Change), y = Change, fill = Change)) +
   labs(
     title = "The Biggest Movers",
     subtitle = "These countries have had the largest change in HPI between 2006 and 2021"
+   
   )
 
 ```
