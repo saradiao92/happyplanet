@@ -381,7 +381,8 @@ data_2006 <- past_HPI %>%
   select(Country, `2006`)
 
 lowest_2006 <- data_2006 %>%
-  arrange(`2006`) %>%
+  filter(Country != "Togo") %>% # Exclude Togo for missing values
+  arrange(`2006`) %>%          
   head(5)
 
 highest_2006 <- data_2006 %>%
@@ -414,7 +415,7 @@ ggplot(filtered_HPI_long, aes(x = Year, y = HPI, color = Country, group = Countr
     plot.title = element_text(hjust = 0.5, size = 14, face = "bold")
   )
 ```
-This plot highlights the consistent differences in well-being among countries over time. High-performing nations like Costa Rica and Colombia consistently maintain scores above 50, reflecting stability and progress, while countries like Zimbabwe, Togo, and Chad struggle with scores below 30. These variations point to disparities in economic, social, or environmental conditions. Notably, the high-performing countries exhibit remarkable stability, while lower-ranking nations experience more volatility, suggesting vulnerabilities to external or internal challenges. These trends underscore the need for targeted efforts to support struggling countries and sustain progress in happy ones.
+This plot highlights the consistent differences in well-being among countries over time. High-performing nations like Costa Rica and Colombia consistently maintain scores above 50, reflecting stability and progress, while countries like Zimbabwe, and Chad struggle with scores below 30. These variations point to disparities in economic, social, or environmental conditions. Notably, the high-performing countries exhibit remarkable stability, while lower-ranking nations experience more volatility, suggesting vulnerabilities to external or internal challenges. These trends underscore the need for targeted efforts to support struggling countries and sustain progress in happy ones.
 
 
 ## Improvement and Regression of HPI across years
