@@ -41,7 +41,7 @@ bar_plot
 
 The data does not exhibit any obvious missing values after we remove the three columns that are duplicate with country labels. However, as mentioned in the HPI 2024 methodology report, some missing values may have been imputed using data from adjacent years.
 
-<<<<<<< HEAD
+
 ```{r, message = FALSE, warning = FALSE}
 hpi_2024$IsMissing <- ifelse(hpi_2024$`Ladder of life (Wellbeing) (0-10)` == 0, "0", "Other Values")
 hpi$IsMissing <- ifelse(hpi$`Ladder of life (Wellbeing) (0-10)` == 0, "0", "Other Values")
