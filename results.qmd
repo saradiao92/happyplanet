@@ -11,12 +11,12 @@ library(tidyverse)
 library(reshape2)
 library(scales)
 
-hpi_2006 <- read_csv("hpi_2006.csv")
-hpi_2011 <- read_csv("hpi_2011.csv")
-hpi_2016 <- read_csv("hpi_2016.csv")
-hpi_2021 <- read_csv("hpi_2021.csv")
-hpi_2024 <- read_csv("All countries_20211.csv", skip=8, show_col_types = FALSE)
-past_HPI <- read_csv("Historical_HPI.csv", show_col_types = FALSE)
+hpi_2006 <- read_csv("data/hpi_2006.csv")
+hpi_2011 <- read_csv("data/hpi_2011.csv")
+hpi_2016 <- read_csv("data/hpi_2016.csv")
+hpi_2021 <- read_csv("data/hpi_2021.csv")
+hpi_2024 <- read_csv("data/All countries_20211.csv", skip=8, show_col_types = FALSE)
+past_HPI <- read_csv("data/Historical_HPI.csv", show_col_types = FALSE)
 past_HPI[is.na(past_HPI)] <- 0
 ```
 
